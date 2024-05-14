@@ -3,6 +3,7 @@ import { Container, Box} from '@chakra-ui/react'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import TextInput from './components/TextInput'
+import KeywordsModal from './components/KeywordsModal'
 
 const App = () => {
 
@@ -16,6 +17,8 @@ const App = () => {
     setLoading(true);
     setIsOpen(true);
 
+    console.log(import.meta.env.VITE_OPENAI_API_URL);
+
 
     const options = {
       method: "POST",
@@ -24,23 +27,15 @@ const App = () => {
         Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'text-davinci-003',
+        model: 'gpt-3.5-turbo',
         prompt: "Extract Keywords from this text. Make the first letter of eac word uppercase and separate with commas \n\n" + text + '',
         temperature: 0.5,
         max_tokens: 60,
         frequency_penalty: 0.8
       })
     }
-    let response;
-    try{
-      response = await fetch(import.meta.env.VITE_OPENAI_API_URL, options);
-      console.log(response)
-
-    }catch(error){
-      console.log(error)
-    }
-
-    
+    const response = await fetch(import.meta.env.VITE_OPENAI_API_URL, options);
+   
     const responseData = await response.json();
 
     const data = responseData[0].text.trim();
@@ -48,6 +43,10 @@ const App = () => {
     console.log(data)
     setKeyWords(data)
     setLoading(false)
+  }
+
+  const closeModal = () =>{
+    setIsOpen(false)
   }
   return (
 
@@ -57,6 +56,7 @@ const App = () => {
         <TextInput extractKeywords={extractKeywords}/>
         <Footer/>
       </Container>
+      <KeywordsModal keywords={keywords} loading={loading} isOpen={isOpen} closeModal={closeModal}/>
     </Box>
   )
 }
